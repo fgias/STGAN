@@ -4,6 +4,7 @@ import torch.utils.data as data
 import torch.nn as nn
 from gan_model import Generator, Discriminator
 import logging
+logger=logging.getLogger(__name__) 
 
 class Trainer(object):
     def __init__(self, opt):
@@ -85,7 +86,7 @@ class Trainer(object):
                 G_total.backward()
                 self.G_optim.step()
                 
-                if step % 100 == 0:
+                if step % 1 == 0:
                     count = 0
                     for score in real_score_D:
                         if torch.mean(score) < 0.5:
@@ -95,7 +96,7 @@ class Trainer(object):
                             count += 1
 
                     acc = count / (self.opt['batch_size'] * 2)
-                    logging.info("epoch:%d step:%d [D loss: %f D acc: %.2f] [G mse: %f G binary %f]" % (e, step, D_total.cpu(), acc * 100, mse_loss, binary_loss))
+                    logger.info("epoch:%d step:%d [D loss: %f D acc: %.2f] [G mse: %f G binary %f]" % (e, step, D_total.cpu(), acc * 100, mse_loss, binary_loss))
 
             torch.save(self.G, self.opt['save_path'] + 'G_' + str(e) + '.pth')
             torch.save(self.D, self.opt['save_path'] + 'D_' + str(e) + '.pth')

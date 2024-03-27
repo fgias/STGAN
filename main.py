@@ -5,6 +5,10 @@ import random
 import os
 from trainer import Trainer
 from tester import Tester
+import logging
+logging.basicConfig(level=logging.DEBUG, filename="main.log", filemode="w",
+                    format="%(asctime)s - %(levelname)s - %(message)s")
+logger=logging.getLogger()
 
 torch.backends.cudnn.benchmark = True
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
