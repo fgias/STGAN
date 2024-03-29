@@ -55,6 +55,12 @@ elif opt['dataset'] == 'nyc':
     opt['recent_time'] = 2      # bay: 1 hour, nyc: 2hour
     opt['num_feature'] = 2 * 2      # length of input feature
     opt['time_feature'] = 39        # length of time feature
+elif opt['dataset'] == 'ximantis':
+    opt['timestamp'] = 60       # 1min: 60
+    opt['train_time'] = 12     # days for training
+    opt['recent_time'] = 2      # ximantis: 1 hour
+    opt['num_feature'] = 1      # length of input feature, density
+    opt['time_feature'] = 31        # length of time feature, 7 + 24
 
 opt['save_path'] = opt['root_path'] + opt['dataset'] + '/checkpoint/'
 opt['data_path'] = opt['root_path'] + opt['dataset'] + '/data/'
