@@ -1,3 +1,4 @@
+import os
 import torch
 from load_data import data_loader
 import torch.utils.data as data
@@ -65,4 +66,8 @@ class Tester(object):
             if step % 100 == 0:
                 logging.info("step:%d [G mse: %f]" % (step, torch.mean(mse_loss)))
 
-        np.save(self.opt['result_path'] + 'result' + '.npy', result.cpu().numpy())
+        directory = self.opt['result_path']
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        
+        np.save(directory + 'result' + '.npy', result.cpu().numpy())

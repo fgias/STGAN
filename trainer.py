@@ -1,3 +1,4 @@
+import os
 import torch
 from load_data import data_loader
 import torch.utils.data as data
@@ -98,5 +99,9 @@ class Trainer(object):
                     acc = count / (self.opt['batch_size'] * 2)
                     logger.info("epoch:%d step:%d [D loss: %f D acc: %.2f] [G mse: %f G binary %f]" % (e, step, D_total.cpu(), acc * 100, mse_loss, binary_loss))
 
-            torch.save(self.G, self.opt['save_path'] + 'G_' + str(e) + '.pth')
-            torch.save(self.D, self.opt['save_path'] + 'D_' + str(e) + '.pth')
+            directory = self.opt['save_path']
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+
+            torch.save(self.G, directory + 'G_' + str(e) + '.pth')
+            torch.save(self.D, directory + 'D_' + str(e) + '.pth')
