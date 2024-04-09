@@ -77,3 +77,4 @@ if __name__ == "__main__":
     test_model = Tester(opt)
     test_model.test()
 
+    logger.info('completed successfully')
