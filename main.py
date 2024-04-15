@@ -74,6 +74,8 @@ opt['result_path'] = opt['root_path'] + opt['dataset'] + '/result/'
 
 opt['train_time'] = opt['train_time'] * opt['timestamp'] * 24
 if __name__ == "__main__":
+    logger.info("configuration:")
+    logger.info(str(opt))
 
     opt['isTrain'] = True
     train_model = Trainer(opt)
