@@ -68,7 +68,7 @@ elif opt['dataset'] == 'ximantis_smooth':
     opt['num_feature'] = 1      # length of input feature, density
     opt['time_feature'] = 24       # length of time feature, 24
 elif opt['dataset'] == 'ximantis_smooth_2':
-    opt['timestamp'] = 12       # 1min: 60
+    opt['timestamp'] = 12       # 5min: 12
     opt['train_time'] = 161     # days for training: 161/181
     opt['recent_time'] = 1      # ximantis: 1 hour
     opt['num_feature'] = 1      # length of input feature, density
