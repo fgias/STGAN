@@ -3,6 +3,7 @@ import torch
 import numpy as np
 import random
 import os
+import datetime
 from trainer import Trainer
 from tester import Tester
 import logging
@@ -79,12 +80,30 @@ elif opt['dataset'] == 'ximantis_smooth_3':
     opt['recent_time'] = 1      # ximantis: 1 hour
     opt['num_feature'] = 1      # length of input feature, density
     opt['time_feature'] = 31       # length of time feature, 24 + 7
+elif opt['dataset'] == 'ximantis_smooth_3_truncated':
+    opt['timestamp'] = 12       # 5min: 12
+    opt['train_time'] = 227     # days for training: 227/237, but (252-58)/288 * 227 = 152.909722222
+    opt['truncated'] = True
+    opt['truncation_t1'] = 58   # truncate before 53/288, and after 252/288
+    opt['truncation_t2'] = 252
+    opt['recent_time'] = 1      # ximantis: 1 hour
+    opt['num_feature'] = 1      # length of input feature, density
+    opt['time_feature'] = 31       # length of time feature, 24 + 7
 
 opt['save_path'] = opt['root_path'] + opt['dataset'] + '/checkpoint/'
 opt['data_path'] = opt['root_path'] + opt['dataset'] + '/data/'
 opt['result_path'] = opt['root_path'] + opt['dataset'] + '/result/'
 
-opt['train_time'] = opt['train_time'] * opt['timestamp'] * 24
+current_datetime = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+opt['result_path'] = opt['result_path'] + current_datetime + "/"
+opt['save_path'] = opt['save_path'] + current_datetime + "/"
+
+if opt.get('truncated') == True:
+    correction = opt['truncation_t2'] - opt['truncation_t1']
+    opt['train_time'] = opt['train_time'] * correction
+else:
+    opt['train_time'] = opt['train_time'] * opt['timestamp'] * 24
+
 if __name__ == "__main__":
     logger.info("configuration:")
     logger.info(str(opt))
