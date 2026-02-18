@@ -88,17 +88,16 @@ class data_loader(data.Dataset):
         return normalized_laplacian
 
     def normalize(self):
-
         max_source1 = torch.max(self.data[:self.opt['train_time'], :, :, 0])
         min_source1 = torch.min(self.data[:self.opt['train_time'], :, :, 0])
-
-        if 'ximantis' not in self.opt['dataset']:
-            max_source2 = torch.max(self.data[:self.opt['train_time'], :, :, 1])
-            min_source2 = torch.min(self.data[:self.opt['train_time'], :, :, 1])
-
         self.data[:, :, :, 0] = self.max_min(self.data[:, :, :, 0], max_source1, min_source1)
-        if 'ximantis' not in self.opt['dataset']:
-            self.data[:, :, :, 1] = self.max_min(self.data[:, :, :, 1], max_source2, min_source2)
+
+        # Only normalize channel 1 if it exists
+        if self.data.shape[3] > 1:
+            if 'ximantis' not in self.opt['dataset']:
+                max_source2 = torch.max(self.data[:self.opt['train_time'], :, :, 1])
+                min_source2 = torch.min(self.data[:self.opt['train_time'], :, :, 1])
+                self.data[:, :, :, 1] = self.max_min(self.data[:, :, :, 1], max_source2, min_source2)
 
     def max_min(self, data, max_val, min_val):
         data = (data - min_val) / (max_val - min_val)
