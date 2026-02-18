@@ -63,9 +63,6 @@ class Tester(object):
                 result[index_t[b].item(), index_r[b].item(), 1] = real_score_D[b].item()
                 result[index_t[b].item(), index_r[b].item(), 2] = fake_score_D[b].item()
 
-            if step % 100 == 0:
-                logging.info("step:%d [G mse: %f]" % (step, torch.mean(mse_loss)))
-
         directory = self.opt['result_path']
         if not os.path.exists(directory):
             os.makedirs(directory)

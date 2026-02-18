@@ -19,7 +19,7 @@ class data_loader(data.Dataset):
         self.time_features = torch.tensor(np.loadtxt(feature_path), dtype=torch.float)
         self.graph = torch.tensor(np.load(graph_path), dtype=torch.float)
         self.adjs = torch.tensor(np.loadtxt(adj_path), dtype=torch.int)
-        logger.info('traffic data: %s' % str(self.data.shape))
+        # logger.info('traffic data: %s' % str(self.data.shape))
 
         # direction subgraph, no self connect
         self.T_recent = opt['recent_time'] * opt['timestamp']
