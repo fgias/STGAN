@@ -88,14 +88,26 @@ class data_loader(data.Dataset):
         return normalized_laplacian
 
     def normalize(self):
-        # Per-feature min-max normalization for each channel
+        # Per-feature min-max normalization for each channel, with outlier clipping
         num_features = self.data.shape[2]
         num_channels = self.data.shape[3]
+        eps = 1e-8
+        clip_percentile = 1.0  # clip 1% on each side
         for ch in range(num_channels):
             for feat in range(num_features):
-                max_val = torch.max(self.data[:self.opt['train_time'], :, feat, ch])
-                min_val = torch.min(self.data[:self.opt['train_time'], :, feat, ch])
-                self.data[:, :, feat, ch] = self.max_min(self.data[:, :, feat, ch], max_val, min_val)
+                train_data = self.data[:self.opt['train_time'], :, feat, ch].reshape(-1)
+                # Compute percentiles for clipping
+                lower = torch.quantile(train_data, clip_percentile / 100.0)
+                upper = torch.quantile(train_data, 1 - clip_percentile / 100.0)
+                # Clip data to reduce outlier effect
+                clipped = torch.clamp(self.data[:, :, feat, ch], lower, upper)
+                max_val = torch.max(clipped[:self.opt['train_time'], :])
+                min_val = torch.min(clipped[:self.opt['train_time'], :])
+                # Avoid division by zero
+                if (max_val - min_val).abs() < eps:
+                    self.data[:, :, feat, ch] = 0.0
+                else:
+                    self.data[:, :, feat, ch] = self.max_min(clipped, max_val, min_val)
 
     def max_min(self, data, max_val, min_val):
         data = (data - min_val) / (max_val - min_val)
