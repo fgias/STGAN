@@ -88,15 +88,14 @@ class data_loader(data.Dataset):
         return normalized_laplacian
 
     def normalize(self):
-        max_source1 = torch.max(self.data[:self.opt['train_time'], :, :, 0])
-        min_source1 = torch.min(self.data[:self.opt['train_time'], :, :, 0])
-        self.data[:, :, :, 0] = self.max_min(self.data[:, :, :, 0], max_source1, min_source1)
-
-        # Only normalize channel 1 if it exists
-        if self.data.shape[3] > 1:
-            max_source2 = torch.max(self.data[:self.opt['train_time'], :, :, 1])
-            min_source2 = torch.min(self.data[:self.opt['train_time'], :, :, 1])
-            self.data[:, :, :, 1] = self.max_min(self.data[:, :, :, 1], max_source2, min_source2)
+        # Per-feature min-max normalization for each channel
+        num_features = self.data.shape[2]
+        num_channels = self.data.shape[3]
+        for ch in range(num_channels):
+            for feat in range(num_features):
+                max_val = torch.max(self.data[:self.opt['train_time'], :, feat, ch])
+                min_val = torch.min(self.data[:self.opt['train_time'], :, feat, ch])
+                self.data[:, :, feat, ch] = self.max_min(self.data[:, :, feat, ch], max_val, min_val)
 
     def max_min(self, data, max_val, min_val):
         data = (data - min_val) / (max_val - min_val)
