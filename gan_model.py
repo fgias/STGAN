@@ -202,7 +202,8 @@ class GCGRUModel(nn.Module):
         """
         batch_size = inputs.shape[0]
         if hidden_state is None:
-            hidden_state = torch.zeros((self.num_rnn_layers, batch_size, self.num_nodes, self.rnn_units), device='cuda')
+            device = 'cuda' if torch.cuda.is_available() else 'cpu'
+            hidden_state = torch.zeros((self.num_rnn_layers, batch_size, self.num_nodes, self.rnn_units), device=device)
         hidden_states = []
 
         output = inputs
