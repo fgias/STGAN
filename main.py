@@ -95,11 +95,17 @@ elif opt['dataset'] == 'crypto':
     opt['recent_time'] = 1
     opt['num_feature'] = 1 # Adj
     opt['time_feature'] = 31 # Length of time feature, 24 + 7
+elif opt['dataset'] == 'crypto_volume':
+    opt['timestamp'] = 1 # 1h
+    opt['train_time'] = 300
+    opt['recent_time'] = 1
+    opt['num_feature'] = 2 # Adj, Vol
+    opt['time_feature'] = 31 # Length of time feature, 24 + 7
 elif opt['dataset'] == 'crypto_ohlc':
     opt['timestamp'] = 1 # 1h
     opt['train_time'] = 300
     opt['recent_time'] = 1
-    opt['num_feature'] = 6 # OHLC, Adj, Vol
+    opt['num_feature'] = 6 # Adj, Vol, OHLC
     opt['time_feature'] = 31 # Length of time feature, 24 + 7
 
 opt['save_path'] = opt['root_path'] + opt['dataset'] + '/checkpoint/'
