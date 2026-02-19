@@ -10,7 +10,7 @@ class data_loader(data.Dataset):
 
         self.opt = opt
 
-        data_path = opt['data_path'] + '/data.npy'     # traffic data
+        data_path = opt['data_path'] + '/data.npy'     # data
         feature_path = opt['data_path'] + '/time_features.txt'     # time feature
         graph_path = opt['data_path'] + '/node_subgraph.npy'     # (num_node, n, n), the subgraph of each node
         adj_path = opt['data_path'] + '/node_adjacent.txt'     # (num_node, n), the adjacent of each node
@@ -19,7 +19,7 @@ class data_loader(data.Dataset):
         self.time_features = torch.tensor(np.loadtxt(feature_path), dtype=torch.float)
         self.graph = torch.tensor(np.load(graph_path), dtype=torch.float)
         self.adjs = torch.tensor(np.loadtxt(adj_path), dtype=torch.int)
-        # logger.info('traffic data: %s' % str(self.data.shape))
+        # logger.info('data: %s' % str(self.data.shape))
 
         # direction subgraph, no self connect
         self.T_recent = opt['recent_time'] * opt['timestamp']
