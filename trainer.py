@@ -37,28 +37,30 @@ class Trainer(object):
         self.G.train()
         self.D.train()
         for e in range(1, self.opt['epoch']+1):
-            for step, ((recent_data, trend_data, time_feature), sub_graph, real_data, _, _) in enumerate(self.generator):
+            for step, ((recent_data, trend_data, time_feature), sub_graph, real_returns, _, _) in enumerate(self.generator):
                 """
                 recent_data: (batch_size, time, node_num, num_feature)
                 trend_data: (batch_size, time, num_feature)
-                real_data: (batch_size, num_adj, num_feature)
+                real_returns: (batch_size, num_adj, num_feature) - predicted returns
                 """
 
-                valid = torch.zeros((real_data.shape[0], 1), dtype=torch.float)
-                fake = torch.ones((real_data.shape[0], 1), dtype=torch.float)
+                valid = torch.zeros((real_returns.shape[0], 1), dtype=torch.float)
+                fake = torch.ones((real_returns.shape[0], 1), dtype=torch.float)
 
                 if self.opt['cuda']:
-                    recent_data, trend_data, real_data, sub_graph, time_feature, valid, fake = \
-                        recent_data.cuda(), trend_data.cuda(), real_data.cuda(), sub_graph.cuda(), time_feature.cuda(), valid.cuda(), fake.cuda()
+                    recent_data, trend_data, real_returns, sub_graph, time_feature, valid, fake = \
+                        recent_data.cuda(), trend_data.cuda(), real_returns.cuda(), sub_graph.cuda(), time_feature.cuda(), valid.cuda(), fake.cuda()
 
                 # ---------------------
                 #  Train Discriminator
                 # ---------------------
                 self.D_optim.zero_grad()
-                real_sequence = torch.cat([recent_data, real_data.unsqueeze(1)], dim=1)  # (batch_size, time, num_adj, input_size)
-                fake_data = self.G(recent_data, trend_data, sub_graph, time_feature)
+                
+                # Reshape returns for discriminator (add time dimension)
+                real_sequence = torch.cat([recent_data, real_returns.unsqueeze(1)], dim=1)  # (batch_size, time, num_adj, input_size)
+                predicted_returns = self.G(recent_data, trend_data, sub_graph, time_feature)
 
-                fake_sequence = torch.cat([recent_data, fake_data.unsqueeze(1)], dim=1)
+                fake_sequence = torch.cat([recent_data, predicted_returns.unsqueeze(1)], dim=1)
 
                 real_score_D = self.D(real_sequence, sub_graph, trend_data)
                 fake_score_D = self.D(fake_sequence, sub_graph, trend_data)
@@ -74,10 +76,11 @@ class Trainer(object):
                 #  Train Generator
                 # -----------------
                 self.G_optim.zero_grad()
-                fake_data = self.G(recent_data, trend_data, sub_graph, time_feature)
+                predicted_returns = self.G(recent_data, trend_data, sub_graph, time_feature)
 
-                mse_loss = self.G_loss(fake_data, real_data)
-                fake_sequence = torch.cat([recent_data, fake_data.unsqueeze(1)], dim=1)
+                # MSE loss on return predictions
+                mse_loss = self.G_loss(predicted_returns, real_returns)
+                fake_sequence = torch.cat([recent_data, predicted_returns.unsqueeze(1)], dim=1)
                         
                 fake_score = self.D(fake_sequence, sub_graph, trend_data)
 
