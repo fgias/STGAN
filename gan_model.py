@@ -31,11 +31,10 @@ class Generator(nn.Module):
         self.fc = nn.Sequential(
             nn.Linear(in_features=int(opt['hidden_dim'] * 2.5), out_features=opt['hidden_dim']),
             nn.ReLU(),
-            nn.Linear(in_features=opt['hidden_dim'], out_features=opt['num_feature']),
-            nn.Tanh()
+            nn.Linear(in_features=opt['hidden_dim'], out_features=opt['num_feature'])
         )
 
-        self.gcn = GCN(opt, input_size=int(opt['hidden_dim'] * 2.5), output_size=opt['num_feature'], activation='tanh')
+        self.gcn = GCN(opt, input_size=int(opt['hidden_dim'] * 2.5), output_size=opt['num_feature'], activation='linear')
 
     def forward(self, recent_data, trend_data, sub_graph, time_feature):
         """Generator
@@ -118,6 +117,8 @@ class GCN(nn.Module):
 
         if activation == 'tanh':
             self.activation = nn.Tanh()
+        elif activation == 'linear':
+            self.activation = nn.Identity()
         else:
             self.activation = nn.Sigmoid()
 
