@@ -31,6 +31,9 @@ class data_loader(data.Dataset):
             self.start_time = opt['train_time']
             self.time_num = self.data.shape[0] - self.start_time
 
+        # For return prediction, exclude last time step (no next value to compute returns from)
+        self.time_num -= 1
+
         self.input_size = self.data.shape[2] * self.data.shape[3]
 
         self.adj_num = self.adjs.shape[1]
@@ -49,13 +52,27 @@ class data_loader(data.Dataset):
 
         # recent_data: (time, sub_graph, num_feature)
         recent_data = torch.zeros((self.T_recent, self.adj_num, self.input_size))
-        real_data = torch.zeros((self.adj_num, self.input_size))
+        real_returns = torch.zeros((self.adj_num, self.input_size))
+        
+        # For return prediction task: compute returns for feature 0 (price) only
+        # Feature 1+ (volume, etc) remain unchanged
 
         # recent
         for i in range(self.adj_num):
             recent_data[:, i, :] = self.data[index_t - self.T_recent:index_t, self.adjs[index_r, i], :, :].view(
                 self.T_recent, -1)
-            real_data[i, :] = self.data[index_t, self.adjs[index_r, i], :, :].view(-1)
+            
+            # Current and next data
+            current_data = self.data[index_t, self.adjs[index_r, i], :, :].view(-1)
+            next_data = self.data[index_t + 1, self.adjs[index_r, i], :, :].view(-1)
+            
+            # Feature 0: Calculate returns (assuming feature 0 is price)
+            # return = (price_t+1 - price_t) / price_t
+            real_returns[i, 0] = (next_data[0] - current_data[0]) / (current_data[0] + 1e-8)
+            
+            # Features 1+: Keep unchanged (e.g., volume stays as volume)
+            if self.input_size > 1:
+                real_returns[i, 1:] = next_data[1:]
 
         # trend
         trend_data = self.data[index_t - self.T_trend:index_t, index_r, :].view(self.T_trend, -1)
@@ -63,7 +80,7 @@ class data_loader(data.Dataset):
         subgraph = self.graph[index_r, ]
         subgraph = self.calculate_normalized_laplacian(subgraph)
 
-        return (recent_data, trend_data, time_feature), subgraph, real_data, index_t - self.start_time, index_r
+        return (recent_data, trend_data, time_feature), subgraph, real_returns, index_t - self.start_time, index_r
 
     def weight(self):
         # std
