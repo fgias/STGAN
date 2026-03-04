@@ -21,7 +21,7 @@ parser.add_argument('--lr', type=float, default=1e-3, help='Learning rate.')
 parser.add_argument('--hidden_dim', type=int, default=64, help='Hidden dimension.')
 parser.add_argument('--epoch', type=int, default=6, help='Number of training epochs per iteration.')
 parser.add_argument('--batch_size', type=int, default=256)
-parser.add_argument('--lambda_G', type=int, default=500, help='lambda_G for generator loss function')
+parser.add_argument('--lambda_G', type=int, default=1, help='lambda_G for generator loss function')
 
 parser.add_argument('--num_adj', type=int, default=9, help='number of nodes in sub graph')
 parser.add_argument('--num_layer', type=int, default=2, help='number of layers in LSTM and DCRNN')
